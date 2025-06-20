@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="mk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>21-дневен предизвик - Ментално здравје</title>
+  <style>
+    body {
+      margin: 0; padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+      min-height: 100vh;
+      display: flex; justify-content: center; align-items: center;
+      color: #333;
+    }
+    #app-container {
+      background: #fff;
+      width: 90vw;
+      max-width: 600px;
+      border-radius: 20px;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+      padding: 2.5rem 3rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h1 {
+      color: #4f46e5;
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+    p {
+      font-size: 1.2rem;
+      margin-bottom: 2.5rem;
+      text-align: center;
+    }
+    button {
+      background-color: #4f46e5;
+      color: white;
+      border: none;
+      border-radius: 16px;
+      padding: 16px 0;
+      font-size: 1.3rem;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      max-width: 320px;
+      transition: background-color 0.3s ease;
+      user-select: none;
+    }
+    button:hover:not(:disabled) {
+      background-color: #4338ca;
+    }
+    button:disabled {
+      background-color: #999;
+      cursor: not-allowed;
+    }
+    input[type=text], select, textarea {
+      width: 100%;
+      padding: 14px 18px;
+      font-size: 1.2rem;
+      border-radius: 14px;
+      border: 1.5px solid #ccc;
+      margin-bottom: 2rem;
+      box-sizing: border-box;
+      transition: border-color 0.3s ease;
+      resize: vertical;
+    }
+    input[type=text]:focus, select:focus, textarea:focus {
+      border-color: #4f46e5;
+      outline: none;
+    }
+    .screen {
+      display: none;
+      width: 100%;
+      max-width: 600px;
+    }
+    .screen.active {
+      display: block;
+    }
+    ul.challenges-list {
+      list-style: none;
+      padding-left: 0;
+      font-size: 1.15rem;
+      color: #444;
+    }
+    ul.challenges-list li {
+      background: #e0e7ff;
+      margin-bottom: 1rem;
+      padding: 12px 18px;
+      border-radius: 12px;
+      box-shadow: 0 3px 8px rgba(79, 70, 229, 0.15);
+    }
+    ul.challenges-list li a {
+      color: #4338ca;
+      text-decoration: none;
+    }
+    ul.challenges-list li a:hover {
+      text-decoration: underline;
+    }
+    .checkbox-label {
+      font-size: 1.15rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+    .checkbox-label input {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+    }
+    .radio-group {
+      margin-bottom: 1.5rem;
+    }
+    .radio-group label {
+      font-size: 1.15rem;
+      margin-right: 20px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<div id="app-container">
+
+  <!-- 1. Почетен екран -->
+  <section id="start-screen" class="screen active" aria-label="Почетна страница">
+    <h1>Добредојде на 21-дневниот предизвик!</h1>
+    <p>Овој предизвик ќе ти помогне да го подобриш твоето ментално здравје и благосостојба во наредните 21 ден.</p>
+    <button id="btn-to-name">Започни</button>
+  </section>
+
+  <!-- 2. Внес на име -->
+  <section id="name-screen" class="screen" aria-label="Внес на име">
+    <h1>Внеси го твоето име</h1>
+    <input type="text" id="name-input" placeholder="Твоето име..." autocomplete="off" />
+    <button id="btn-to-mood" disabled>Следно</button>
+  </section>
+
+  <!-- 3. Избор на расположение -->
+  <section id="mood-screen" class="screen" aria-label="Избор на расположение">
+    <h1>Како се чувствуваш денес?</h1>
+    <select id="mood-select" aria-label="Избери расположение">
+      <option value="">-- Избери --</option>
+      <option value="sport">Спортист</option>
+      <option value="social">Сакам дружење</option>
+      <option value="introvert">Интровертен тип</option>
+    </select>
+    <button id="btn-to-challenges" disabled>Покажи предизвици</button>
+  </section>
+
+  <!-- 4. Прикажи предизвици и прашање дали се направени -->
+  <section id="challenge-screen" class="screen" aria-label="Предизвици и проверка">
+    <h1>Предизвици за денес</h1>
+    <p id="welcome-msg"></p>
+    <form id="challenges-form">
+      <ul class="challenges-list" id="challenge-list"></ul>
+      <button id="btn-to-feedback" type="submit" disabled>Следно</button>
+    </form>
+  </section>
+
+  <!-- 5. Фидбек форма - задоволство и прашања -->
+  <section id="feedback-screen" class="screen" aria-label="Повратна информација">
+    <h1>Како си задоволен/на од денешниот ден?</h1>
+    <form id="feedback-form">
+
+      <div class="radio-group" aria-label="Задоволство од денот">
+        <label><input type="radio" name="satisfaction" value="1" required /> 1 - Многу лошо</label>
+        <label><input type="radio" name="satisfaction" value="2" /> 2 - Лошо</label>
+        <label><input type="radio" name="satisfaction" value="3" /> 3 - Средно</label>
+        <label><input type="radio" name="satisfaction" value="4" /> 4 - Добро</label>
+        <label><input type="radio" name="satisfaction" value="5" /> 5 - Многу добро</label>
+      </div>
+
+      <label for="text-feedback">Дали предизвиците ти помогнаа да го подобриш расположението? (напиши слободно):</label>
+      <textarea id="text-feedback" rows="4" placeholder="Твој одговор..."></textarea>
+
+      <div class="radio-group" aria-label="Лично искуство">
+        <label><input type="radio" name="personal" value="yes" required /> Да</label>
+        <label><input type="radio" name="personal" value="no" /> Не</label>
+        <label><input type="radio" name="personal" value="maybe" /> Можеби</label>
+      </div>
+
+      <button type="submit">Заврши ден</button>
+    </form>
+  </section>
+
+  <!-- 6. Завршен екран -->
+  <section id="end-screen" class="screen" aria-label="Крај">
+    <h1>Честитки!</h1>
+    <p>Се гледаме утре во исто време!</p>
+    <button id="btn-restart">Почни од почеток</button>
+  </section>
+
+</div>
+
+<script>
+  // Елементи
+  const startScreen = document.getElementById('start-screen');
+  const nameScreen = document.getElementById('name-screen');
+  const moodScreen = document.getElementById('mood-screen');
+  const challengeScreen = document.getElementById('challenge-screen');
+  const feedbackScreen = document.getElementById('feedback-screen');
+  const endScreen = document.getElementById('end-screen');
+
+  const btnToName = document.getElementById('btn-to-name');
+  const btnToMood = document.getElementById('btn-to-mood');
+  const btnToChallenges = document.getElementById('btn-to-challenges');
+  const btnRestart1 = document.getElementById('btn-restart'); // од крај
+  const btnRestart2 = document.getElementById('btn-restart'); // исто копче користиме
+
+  const nameInput = document.getElementById('name-input');
+  const moodSelect = document.getElementById('mood-select');
+
+  const welcomeMsg = document.getElementById('welcome-msg');
+  const challengeList = document.getElementById('challenge-list');
+  const challengesForm = document.getElementById('challenges-form');
+  const btnToFeedback = document.getElementById('btn-to-feedback');
+
+  const feedbackForm = document.getElementById('feedback-form');
+
+  // Предизвици со линкови
+  const challengesData = {
+    sport: [
+      { text: "Посети Олимписки базен", link: "https://www.olimpiskibazen.com.mk/info.html" },
+      { text: "Прошетка во природа", link: null },
+      { text: "Направи лесни вежби за истегнување", link: "https://www.youtube.com/watch?v=cbKkB3POqaY" },
+      { text: "Пробај тенис", link: "https://www.facebook.com/teniskaakademijaaerodrom/?locale=mk_MK" }
+    ],
+    social: [
+      { text: "Пиј кафе во Leaf Caffe", link: "https://www.instagram.com/leaf_cafe_skopje/" },
+      { text: "Организирај дружење со пријателите", link: null },
+      { text: "Слушај музика со пријателите", link: "https://www.youtube.com/watch?v=IoxStS0PFds" }
+    ],
+    introvert: [
+      { text: "Прочитај книга за самодоверба", link: null },
+      { text: "Напиши дневник за денешните мисли", link: null },
+      { text: "Слушај релаксирачка музика", link: "https://www.youtube.com/watch?v=inpok4MKVLM" },
+      { text: "Практикувај медитација", link: "https://www.youtube.com/watch?v=inpok4MKVLM" }
+    ]
+  };
+
+  // Помошна функција
+  function showScreen(screen) {
+    [startScreen, nameScreen, moodScreen, challengeScreen, feedbackScreen, endScreen].forEach(s => s.classList.remove('active'));
+    screen.classList.add('active');
+  }
+
+  // Почеток: старт копче
+  btnToName.addEventListener('click', () => {
+    showScreen(nameScreen);
+    nameInput.focus();
+  });
+
+  // Активирај "Следно" кога има внесено име
+  nameInput.addEventListener('input', () => {
+    btnToMood.disabled = nameInput.value.trim() === '';
+  });
+
+  btnToMood.addEventListener('click', () => {
+    showScreen(moodScreen);
+    moodSelect.value = '';
+    btnToChallenges.disabled = true;
+  });
+
+  // Активирај "Покажи предизвици" кога е избран тип
+  moodSelect.addEventListener('change', () => {
+    btnToChallenges.disabled = moodSelect.value === '';
+  });
+
+  btnToChallenges.addEventListener('click', () => {
+    const name = nameInput.value.trim();
+    const mood = moodSelect.value;
+    if (!name || !mood) return;
+
+    let moodText = '';
+    if (mood === 'sport') moodText = 'ти си спортски тип';
+    else if (mood === 'social') moodText = 'сакаш дружење';
+    else if (mood === 'introvert') moodText = 'си интровертен тип';
+
+    welcomeMsg.textContent = `Здраво, ${name}! Според твојот избор, ${moodText}. Ве молиме означи кои предизвици ги направи денес:`;
+
+    challengeList.innerHTML = '';
+    challengesData[mood].forEach((item, i) => {
+      const li = document.createElement('li');
+      const id = `challenge-${i}`;
+      li.innerHTML = `
+        <label class="checkbox-label" for="${id}">
+          <input type="checkbox" id="${id}" name="challenge" value="${item.text}">
+          ${item.link ? `<a href="${item.link}" target="_blank" rel="noopener noreferrer">${item.text}</a>` : item.text}
+        </label>`;
+      challengeList.appendChild(li);
+    });
+
+    btnToFeedback.disabled = true;
+    showScreen(challengeScreen);
+  });
+
+  // Следно копче на предизвиците (формата)
+  challengesForm.addEventListener('change', () => {
+    // Ако барем еден чекбокс е означен, овозможи копчето
+    const checked = challengesForm.querySelectorAll('input[type=checkbox]:checked').length;
+    btnToFeedback.disabled = checked === 0;
+  });
+
+  challengesForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    showScreen(feedbackScreen);
+  });
+
+  // Фидбек форма
+  feedbackForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    // Можеш овде да земеш податоци ако сакаш, или да ги испратиш на сервер
+
+    // Порака на крај
+    showScreen(endScreen);
+  });
+
+  // Рестарт копче
+  btnRestart1.addEventListener('click', () => {
+    // Испразни полињата и врати на почеток
+    nameInput.value = '';
+    moodSelect.value = '';
+    btnToMood.disabled = true;
+    btnToChallenges.disabled = true;
+    btnToFeedback.disabled = true;
+    showScreen(startScreen);
+  });
+</script>
+
+</body>
+</html>
